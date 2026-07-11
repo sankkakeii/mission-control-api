@@ -2,9 +2,8 @@ module.exports = {
   apps: [
     {
       name: "mission-control-api",
-      script: "-m",
-      args: "mission_control_api",
-      interpreter: "python3",
+      script: "./start.sh",
+      interpreter: "bash",
       cwd: "/root/node-pocket/mission-control-api",
       env: {
         NODE_ENV: "production",

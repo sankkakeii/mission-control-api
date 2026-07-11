@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
-_VALID_BACKENDS = {"fireworks", "vllm", "transformers"}
+_VALID_BACKENDS = {"fireworks", "vllm", "transformers", "openrouter"}
 
 
 @dataclass(frozen=True)
