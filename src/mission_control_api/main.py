@@ -110,7 +110,9 @@ def create_app(
         queue: asyncio.Queue = asyncio.Queue()
         subscribers.add(queue)
 
-        if not runtime.running and runtime.status != "completed":
+        if not runtime.running and runtime.status == "completed":
+            runtime.reset()
+        elif not runtime.running and runtime.status == "idle":
             asyncio.create_task(runtime.start_demo())
 
         try:
