@@ -13,3 +13,4 @@ build/
 *.log
 .coverage
 htmlcov/
+ssh_exec.py
