@@ -12,13 +12,24 @@ Mission context:
 Current event:
 {event}
 
+CRITICAL RULES — DATA CITATION REQUIRED:
+1. You MUST cite specific numbers from the mission context in every response.
+2. For EVERY claim, include the source data. Examples:
+   - CORRECT: "Named road blocked — reroute via alternate" (NOT "roads are blocked")
+   - CORRECT: "Stated number of hospitals with stated bed count need supply chain priority" (NOT "hospitals need supplies")
+   - CORRECT: "Wind speed restricts helicopter payload" (NOT "weather affects transport")
+3. Never say "roads" without naming them. Never say "hospitals" without the count and beds.
+4. Reference specific road names, hospital names, and building counts from context.
+5. Factor weather into logistics: cite wind speed for helicopter ops, visibility for convoy routing.
+
 Return JSON with these keys:
-- analysis
-- recommendation
+- analysis (must contain at least 3 specific data citations)
+- recommendation (must reference at least 1 specific data point)
 - confidence
 - priority_change
 - resources_needed
 - risk_score
+- data_citations (list of exact phrases you cited)
 
 Rules:
 - Always respond in valid JSON only.

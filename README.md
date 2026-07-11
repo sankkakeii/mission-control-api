@@ -2,6 +2,8 @@
 
 FastAPI backend for the Mission Control earthquake response demo.
 
+Five AI agents analyze real-time seismic events, debate resource allocation, and produce evolving mission plans — all powered by Gemma 4 on AMD compute.
+
 ## Quick Start
 
 ```bash
@@ -18,10 +20,12 @@ Server runs at `http://localhost:8000`.
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health check |
-| GET | `/api/scenario` | Scenario metadata (event list, agents) |
+| GET | `/api/scenario` | Scenario metadata (event list, agents, context) |
 | GET | `/api/state` | Full mission state snapshot |
 | GET | `/api/status` | Alias for `/api/state` |
-| POST | `/api/simulations/demo/start` | Start the demo |
+| POST | `/api/simulations/demo/start` | Start the demo (live USGS data) |
+| POST | `/api/simulations/demo/start?auto=true` | Auto mode — polls USGS every 60s, chains new scenarios |
+| POST | `/api/simulations/demo/restart` | Reset state and re-run the demo |
 | WS | `/ws` | Real-time event stream |
 
 ### WebSocket Protocol
@@ -36,11 +40,11 @@ Connect to `ws://localhost:8000/ws`. The server pushes messages as JSON:
 
 | Type | Data Shape | When |
 |------|-----------|------|
-| `mission_started` | `{}` | Demo begins |
+| `mission_started` | `{ scenario: ScenarioDefinition }` | Demo begins |
 | `event` | `MissionEvent` | New earthquake event |
-| `agent_response` | `AgentResponse` | Agent finishes analysis |
+| `agent_response` | `AgentResponse` | Agent finishes analysis (includes citation data) |
 | `mission_plan` | `MissionPlan` | Commander synthesizes plan |
-| `mission_complete` | `{}` | All events processed |
+| `mission_complete` | `{ plan_version: int }` | All events processed |
 | `error` | `{ message: string }` | Something went wrong |
 
 ### Data Models
@@ -51,9 +55,10 @@ Connect to `ws://localhost:8000/ws`. The server pushes messages as JSON:
   "timestamp": "06:32",
   "event_type": "earthquake_detected",
   "severity": "critical",
-  "title": "Twin Earthquakes Detected",
-  "description": "7.2 and 7.5 magnitude, 38 seconds apart",
-  "affected_agents": ["overwatch", "sentinel", "atlas", "pulse", "aegis"]
+  "title": "TWIN EARTHQUAKE: M7.5 — 15km NNW of Yaracuy, Venezuela",
+  "description": "Two major earthquakes struck within seconds...",
+  "affected_agents": ["Overwatch", "Sentinel", "Atlas", "Pulse", "Aegis"],
+  "metadata": { "source": "USGS", "magnitude": 7.5, "lat": 10.5, "lon": -68.8 }
 }
 ```
 
@@ -63,12 +68,15 @@ Connect to `ws://localhost:8000/ws`. The server pushes messages as JSON:
   "agent_name": "Intelligence",
   "callsign": "Sentinel",
   "timestamp": "06:32",
-  "analysis": "Multiple structural collapses reported in Caracas district...",
-  "recommendation": "Deploy urban search and rescue to zone A",
+  "analysis": "M7.5 earthquake at 10km depth with 4 hospitals and 1,200 beds in range — mass casualty likely...",
+  "recommendation": "Deploy urban search and rescue to collapse zone",
   "confidence": 0.85,
   "priority_change": "increase",
   "resources_needed": ["heavy machinery", "rescue dogs"],
-  "risk_score": null
+  "risk_score": 0.92,
+  "citation_score": 0.875,
+  "cited_data": ["M7.5", "10km depth", "4 hospitals", "1,200 beds"],
+  "missing_data": ["road names"]
 }
 ```
 
@@ -80,10 +88,10 @@ Connect to `ws://localhost:8000/ws`. The server pushes messages as JSON:
   "overall_risk": "CRITICAL",
   "actions": [
     "Deploy Urban SAR Team Alpha to collapse zone",
-    "Activate emergency hospital protocols",
+    "Activate emergency hospital protocols at stated facilities",
     "Redirect supply convoy via alternate route"
   ],
-  "reasoning": "72-hour rescue window requires immediate deployment...",
+  "reasoning": "M7.5 at 10km depth with 4 hospitals at capacity requires immediate mass casualty response...",
   "confidence": 0.82
 }
 ```
@@ -93,18 +101,24 @@ Connect to `ws://localhost:8000/ws`. The server pushes messages as JSON:
 {
   "status": "running",
   "scenario": {
-    "name": "Venezuela Twin Earthquake Response",
-    "description": "...",
-    "agents": ["overwatch", "sentinel", "atlas", "pulse", "aegis"],
-    "event_count": 10,
-    "events": [...]
+    "name": "Live: M7.5 — 15km NNW of Yaracuy, Venezuela (4 events)",
+    "description": "Live USGS data: M7.5 earthquake...",
+    "agents": ["Overwatch", "Sentinel", "Atlas", "Pulse", "Aegis"],
+    "event_count": 26,
+    "events": [...],
+    "context": {
+      "earthquake": { "magnitude": 7.5, "depth_km": 10, "lat": 10.5, "lon": -68.8, ... },
+      "infrastructure": { "hospital_count": 4, "total_beds": 1200, "building_count": 8500, ... },
+      "weather": { "temperature_c": 28, "wind_speed_ms": 5, "description": "partly cloudy", ... },
+      "seismic_swarm": [ ... ]
+    }
   },
   "memory": {
-    "version": 3,
-    "current_risk": "HIGH",
-    "event_count": 3,
-    "response_count": 15,
-    "plan_count": 3,
+    "version": 26,
+    "current_risk": "CRITICAL",
+    "event_count": 26,
+    "response_count": 130,
+    "plan_count": 26,
     "recent_events": [...],
     "latest_plan": { ... }
   },
@@ -118,11 +132,11 @@ Connect to `ws://localhost:8000/ws`. The server pushes messages as JSON:
 
 | Callsign | Role |
 |----------|------|
-| `overwatch` | Commander — synthesizes mission plans |
-| `sentinel` | Intelligence — damage reports, observations |
-| `atlas` | Logistics — rescue teams, supply routes |
-| `pulse` | Medical — hospitals, triage, shelter health |
-| `aegis` | Risk — aftershock probability, stability |
+| `Overwatch` | Commander — synthesizes mission plans |
+| `Sentinel` | Intelligence — damage reports, observations |
+| `Atlas` | Logistics — rescue teams, supply routes |
+| `Pulse` | Medical — hospitals, triage, shelter health |
+| `Aegis` | Risk — aftershock probability, stability |
 
 ### Severity Levels
 
@@ -131,10 +145,28 @@ Connect to `ws://localhost:8000/ws`. The server pushes messages as JSON:
 ### Demo Flow
 
 1. Frontend connects to `ws://localhost:8000/ws`
-2. Frontend POSTs to `/api/simulations/demo/start`
-3. Server streams 10 events with ~3s gaps
-4. Each event triggers 5 parallel agent analyses + 1 commander synthesis
-5. Server sends `mission_complete` when done
+2. Frontend POSTs to `/api/simulations/demo/start` (or `?auto=true` for continuous mode)
+3. Server fetches live USGS earthquake data (with OpenStreetMap infrastructure, OpenWeatherMap weather)
+4. Server streams 25+ events with ~3s gaps — each event triggers 5 parallel agent analyses + 1 commander synthesis
+5. Every agent response includes citation validation (proving agents reference real data, not hallucinating)
+6. Server sends `mission_complete` when done (or continues polling in auto mode)
+
+### Auto Mode
+
+`POST /api/simulations/demo/start?auto=true` enables continuous monitoring:
+- Polls USGS every 60 seconds for new earthquakes
+- Chains new scenarios as live data arrives
+- Max 25 events per scenario to manage LLM costs
+- Previous scenario data cached to temp JSON for fallback
+
+### Citation System
+
+Every agent response is validated against the real scenario data:
+- **citation_score** (0.0–1.0): % of available data points the agent referenced
+- **cited_data**: list of specific data points cited (e.g., "M7.5", "4 hospitals", "28C")
+- **missing_data**: data points the agent failed to reference
+
+This proves agents are analyzing real data, not generating generic responses.
 
 ### CORS
 
@@ -145,11 +177,15 @@ All origins are allowed (`*`). No auth required.
 Set in `.env` or environment:
 
 ```bash
-FIREWORKS_API_KEY=fw_...    # Fireworks AI (default path)
-GEMMA_ENDPOINT=...          # AMD MI300X vLLM (overrides Fireworks)
+LLM_BACKEND=              # auto-detect: fireworks → openrouter → vllm → transformers
+FIREWORKS_API_KEY=fw_...  # Fireworks AI serverless (Gemma 4 26B)
+OPENROUTER_API_KEY=sk-... # OpenRouter API (Gemma 4 26B, free tier)
+GEMMA_ENDPOINT=...        # AMD MI300X vLLM (overrides Fireworks)
+HF_TOKEN=hf_...           # HuggingFace token for gated models
+LIVE_MODE=true            # Fetch real USGS earthquake data
 ```
 
-When neither is set, agents return deterministic fallback responses.
+When no LLM key is set, agents return deterministic fallback responses.
 
 ## Test
 
@@ -158,4 +194,4 @@ pip install -e ".[dev]"
 python -m pytest tests/ -v
 ```
 
-14 tests: E2E WebSocket demo, architecture contracts, config loading, LLM wiring.
+17 tests: E2E WebSocket demo, architecture contracts, config loading, LLM wiring.

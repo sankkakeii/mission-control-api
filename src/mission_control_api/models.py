@@ -34,6 +34,9 @@ class AgentResponse(BaseModel):
     priority_change: str | None = None
     resources_needed: list[str] | None = None
     risk_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    citation_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    cited_data: list[str] | None = None
+    missing_data: list[str] | None = None
 
 
 class MissionPlan(BaseModel):
@@ -51,6 +54,7 @@ class ScenarioDefinition(BaseModel):
     agents: list[str]
     event_count: int
     events: list[MissionEvent]
+    context: dict[str, Any] | None = None
 
 
 class MissionMemorySnapshot(BaseModel):

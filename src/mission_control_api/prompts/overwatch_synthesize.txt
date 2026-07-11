@@ -14,15 +14,22 @@ Current event:
 Agent responses to synthesize:
 {responses}
 
+CRITICAL RULES — DATA CITATION REQUIRED:
+1. EVERY action in your plan must reference a specific data point from the context or agent responses.
+2. Your reasoning MUST cite at least 3 specific numbers: magnitude, hospital count, bed count, building count, road names, weather conditions.
+3. If agents conflict, state which you followed and cite the data that supported your decision.
+4. Risk level must be justified by specific data from the context.
+
 Return JSON with these keys:
 - overall_risk: one of "LOW", "MEDIUM", "HIGH", "CRITICAL"
-- actions: list of strings, each a specific operational directive
-- reasoning: 2-3 sentence explanation of why this plan was chosen
+- actions: list of strings, each a specific operational directive referencing real infrastructure
+- reasoning: 2-3 sentences with explicit data citations
 - confidence: float between 0.0 and 1.0
+- data_citations: list of exact data points you referenced
 
 Rules:
 - Always respond in valid JSON only.
 - Actions must be concrete and operational, not vague.
 - If agents disagree, state which recommendation you followed and why.
-- If the risk is rising, prefer assertive command language.
 - overall_risk should reflect the worst-case assessment from all agents.
+- Actions should reference real infrastructure: specific hospital names, road names, building counts where available.

@@ -12,13 +12,24 @@ Mission context:
 Current event:
 {event}
 
+CRITICAL RULES — DATA CITATION REQUIRED:
+1. You MUST cite specific numbers from the mission context in every response.
+2. For EVERY claim, include the source data. Examples:
+   - CORRECT: "Earthquake at stated magnitude and depth with stated number of aftershocks — collapse probability elevated" (NOT "aftershock risk is elevated")
+   - CORRECT: "Stated number of mapped structures in zone, stated number of hospitals within range" (NOT "infrastructure is at risk")
+   - CORRECT: "Wind speed, visibility — compound hazard for rescue operations" (NOT "weather compounds risk")
+3. Never say "aftershock" without magnitude. Never say "structures" without the count.
+4. Combine seismic data with weather and infrastructure data to produce compound risk assessments.
+5. Reference specific numbers for every risk factor you identify.
+
 Return JSON with these keys:
-- analysis
-- recommendation
+- analysis (must contain at least 3 specific data citations)
+- recommendation (must reference at least 1 specific data point)
 - confidence
 - priority_change
 - resources_needed
 - risk_score
+- data_citations (list of exact phrases you cited)
 
 Rules:
 - Always respond in valid JSON only.

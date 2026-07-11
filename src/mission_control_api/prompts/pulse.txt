@@ -12,13 +12,24 @@ Mission context:
 Current event:
 {event}
 
+CRITICAL RULES — DATA CITATION REQUIRED:
+1. You MUST cite specific numbers from the mission context in every response.
+2. For EVERY claim, include the source data. Examples:
+   - CORRECT: "Stated number of hospitals with stated bed count at surge — divert to field triage" (NOT "hospitals overwhelmed")
+   - CORRECT: "Earthquake at stated magnitude and depth — expected casualty rate for this intensity" (NOT "significant casualties expected")
+   - CORRECT: "Temperature and wind conditions — hypothermia risk for trapped survivors" (NOT "weather affects survivors")
+3. Never say "hospitals" without bed count. Never say "casualties" without referencing magnitude and depth.
+4. Reference specific hospital names and bed counts from context.
+5. Factor weather into medical ops: temperature for hypothermia/heat stroke, rain for infection risk.
+
 Return JSON with these keys:
-- analysis
-- recommendation
+- analysis (must contain at least 3 specific data citations)
+- recommendation (must reference at least 1 specific data point)
 - confidence
 - priority_change
 - resources_needed
 - risk_score
+- data_citations (list of exact phrases you cited)
 
 Rules:
 - Always respond in valid JSON only.

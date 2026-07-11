@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from statistics import mean
 from typing import Any
 
+from .citation_validator import validate_citations
 from .llm_client import MissionLLMClient
 from .mission_memory import MissionMemory
 from .models import AgentResponse, EventSeverity, MissionEvent, MissionPlan
@@ -72,6 +73,7 @@ class OverwatchAgent(BaseAgent):
                 response = self._fallback_analyze(event)
         else:
             response = self._fallback_analyze(event)
+        response = _enrich_with_citations(response, memory.scenario_context)
         self.status = "idle"
         self.last_output = response.analysis
         return response
@@ -180,6 +182,7 @@ class SentinelAgent(BaseAgent):
                 response = self._fallback_analyze(event, memory)
         else:
             response = self._fallback_analyze(event, memory)
+        response = _enrich_with_citations(response, memory.scenario_context)
         self.status = "idle"
         self.last_output = response.analysis
         return response
@@ -229,6 +232,7 @@ class AtlasAgent(BaseAgent):
                 response = self._fallback_analyze(event)
         else:
             response = self._fallback_analyze(event)
+        response = _enrich_with_citations(response, memory.scenario_context)
         self.status = "idle"
         self.last_output = response.analysis
         return response
@@ -277,6 +281,7 @@ class PulseAgent(BaseAgent):
                 response = self._fallback_analyze(event)
         else:
             response = self._fallback_analyze(event)
+        response = _enrich_with_citations(response, memory.scenario_context)
         self.status = "idle"
         self.last_output = response.analysis
         return response
@@ -323,6 +328,7 @@ class AegisAgent(BaseAgent):
                 response = self._fallback_analyze(event)
         else:
             response = self._fallback_analyze(event)
+        response = _enrich_with_citations(response, memory.scenario_context)
         self.status = "idle"
         self.last_output = response.analysis
         return response
@@ -402,6 +408,18 @@ def _build_agent_response(
         "timestamp": payload.get("timestamp", event.timestamp),
     }
     return AgentResponse.model_validate(data)
+
+
+def _enrich_with_citations(
+    response: AgentResponse,
+    context: dict[str, Any] | None,
+) -> AgentResponse:
+    """Run citation validator on agent response and attach results."""
+    result = validate_citations(response.analysis, response.recommendation, context)
+    response.citation_score = result.citation_score
+    response.cited_data = result.cited
+    response.missing_data = result.missing
+    return response
 
 
 def _build_mission_plan(

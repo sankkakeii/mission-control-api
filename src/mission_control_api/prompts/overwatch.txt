@@ -14,15 +14,21 @@ Current event:
 Agent responses to synthesize:
 {responses}
 
+CRITICAL RULES — DATA CITATION REQUIRED:
+1. You MUST cite specific numbers from the mission context in every response.
+2. For EVERY claim you make, include the source data point. Examples:
+   - CORRECT: "Major earthquake at stated depth warrants immediate deployment" (NOT just "major earthquake")
+   - CORRECT: "Stated number of hospitals with stated bed count — divert to field triage" (NOT just "hospitals are overwhelmed")
+   - CORRECT: "Wind speed and visibility constrain helicopter ops" (NOT just "weather is poor")
+3. Never say "hospitals" without stating the count. Never say "earthquake" without stating magnitude AND depth.
+4. Reference specific road names, hospital names, and weather conditions from the context.
+5. If data is unavailable for a category, state that explicitly: "Infrastructure data unavailable for road network."
+
 Return JSON with these keys:
-- analysis
-- recommendation
+- analysis (must contain at least 3 specific data citations)
+- recommendation (must reference at least 1 specific data point)
 - confidence
 - priority_change
 - resources_needed
 - risk_score
-
-Rules:
-- Always respond in valid JSON only.
-- Keep analysis grounded in the current event and mission memory.
-- If the risk is rising, prefer assertive command language.
+- data_citations (list of exact phrases you cited from the context, e.g. the magnitude, depth, hospital count)

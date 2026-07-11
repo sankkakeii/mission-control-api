@@ -12,13 +12,23 @@ Mission context:
 Current event:
 {event}
 
+CRITICAL RULES — DATA CITATION REQUIRED:
+1. You MUST cite specific numbers from the mission context in every response.
+2. For EVERY claim, include the source data. Examples:
+   - CORRECT: "Structural damage to mapped buildings from the earthquake at stated depth" (NOT "significant damage expected")
+   - CORRECT: "Stated number of hospitals in range with stated bed count — capacity critical" (NOT "hospitals overwhelmed")
+3. Never say "buildings" without the count. Never say "earthquake" without magnitude AND depth.
+4. Reference specific hospital names, road names, and aftershock magnitudes from context.
+5. Cross-reference seismic intensity with infrastructure density using actual numbers.
+
 Return JSON with these keys:
-- analysis
-- recommendation
+- analysis (must contain at least 3 specific data citations from the context)
+- recommendation (must reference at least 1 specific data point)
 - confidence
 - priority_change
 - resources_needed
 - risk_score
+- data_citations (list of exact phrases you cited, e.g. the magnitude, depth, building count, hospital count)
 
 Rules:
 - Always respond in valid JSON only.
