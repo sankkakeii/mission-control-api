@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080">
+<title>Mission Control Cover</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  background: #0a0a0f;
+  position: relative;
+}
+
+/* Animated grid background */
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: 0;
+}
+
+/* Radial glow behind earthquake */
+.glow-center {
+  position: absolute;
+  top: 35%;
+  left: 55%;
+  width: 900px;
+  height: 900px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 60, 40, 0.15) 0%, rgba(255, 100, 0, 0.08) 30%, transparent 70%);
+  z-index: 1;
+}
+
+.glow-blue {
+  position: absolute;
+  top: 60%;
+  left: 30%;
+  width: 700px;
+  height: 700px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(0, 170, 255, 0.08) 0%, transparent 60%);
+  z-index: 1;
+}
+
+/* Seismic rings */
+.seismic-container {
+  position: absolute;
+  top: 50%;
+  left: 58%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.ring {
+  position: absolute;
+  border: 1px solid rgba(255, 80, 50, 0.25);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 4s ease-out infinite;
+}
+
+.ring:nth-child(1) { width: 120px; height: 120px; animation-delay: 0s; border-color: rgba(255, 80, 50, 0.6); }
+.ring:nth-child(2) { width: 220px; height: 220px; animation-delay: 0.3s; border-color: rgba(255, 80, 50, 0.4); }
+.ring:nth-child(3) { width: 340px; height: 340px; animation-delay: 0.6s; border-color: rgba(255, 80, 50, 0.3); }
+.ring:nth-child(4) { width: 480px; height: 480px; animation-delay: 0.9s; border-color: rgba(255, 80, 50, 0.2); }
+.ring:nth-child(5) { width: 640px; height: 640px; animation-delay: 1.2s; border-color: rgba(255, 80, 50, 0.12); }
+.ring:nth-child(6) { width: 820px; height: 820px; animation-delay: 1.5s; border-color: rgba(255, 80, 50, 0.06); }
+
+/* Epicenter dot */
+.epicenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: #ff5030;
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255, 80, 50, 0.8), 0 0 60px rgba(255, 80, 50, 0.4);
+  animation: epicenterPulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+}
+
+@keyframes epicenterPulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(255, 80, 50, 0.8), 0 0 60px rgba(255, 80, 50, 0.4); }
+  50% { box-shadow: 0 0 50px rgba(255, 80, 50, 1), 0 0 100px rgba(255, 80, 50, 0.6); }
+}
+
+/* Agent dots orbiting */
+.agent-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  z-index: 3;
+}
+
+.agent-dot.overwatch { background: #00ff88; box-shadow: 0 0 12px rgba(0, 255, 136, 0.6); top: 18%; left: 42%; }
+.agent-dot.sentinel { background: #00aaff; box-shadow: 0 0 12px rgba(0, 170, 255, 0.6); top: 25%; left: 75%; }
+.agent-dot.atlas { background: #ffaa00; box-shadow: 0 0 12px rgba(255, 170, 0, 0.6); top: 72%; left: 70%; }
+.agent-dot.pulse { background: #ff4466; box-shadow: 0 0 12px rgba(255, 68, 102, 0.6); top: 78%; left: 40%; }
+.agent-dot.aegis { background: #aa66ff; box-shadow: 0 0 12px rgba(170, 102, 255, 0.6); top: 30%; left: 35%; }
+
+.agent-label {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.agent-label.overwatch { color: #00ff88; top: 13%; left: 39%; }
+.agent-label.sentinel { color: #00aaff; top: 20%; left: 75%; }
+.agent-label.atlas { color: #ffaa00; top: 77%; left: 70%; }
+.agent-label.pulse { color: #ff4466; top: 83%; left: 37%; }
+.agent-label.aegis { color: #aa66ff; top: 25%; left: 35%; }
+
+/* Connection lines (SVG) */
+.connections {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.connections line {
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-width: 1;
+}
+
+/* Left content */
+.content-left {
+  position: absolute;
+  top: 120px;
+  left: 100px;
+  z-index: 10;
+  max-width: 650px;
+}
+
+.badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  padding: 8px 18px;
+  margin-bottom: 30px;
+  background: rgba(0, 255, 136, 0.05);
+}
+
+.title {
+  font-size: 72px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.05;
+  margin-bottom: 10px;
+  letter-spacing: -2px;
+}
+
+.title .highlight {
+  color: #ff5030;
+  text-shadow: 0 0 40px rgba(255, 80, 50, 0.4);
+}
+
+.subtitle {
+  font-size: 22px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 50px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+}
+
+/* Tech stack pills */
+.tech-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.tech-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  letter-spacing: 0.5px;
+}
+
+.tech-pill.amd {
+  color: #00aaff;
+  border-color: rgba(0, 170, 255, 0.3);
+  background: rgba(0, 170, 255, 0.05);
+}
+
+/* Stats */
+.stats-row {
+  display: flex;
+  gap: 50px;
+}
+
+.stat {
+  text-align: left;
+}
+
+.stat-number {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+/* Bottom bar */
+.bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #00ff88, #00aaff, #ff5030, #ffaa00, #aa66ff);
+  z-index: 10;
+}
+
+/* AMD badge */
+.amd-badge {
+  position: absolute;
+  bottom: 40px;
+  right: 100px;
+  z-index: 10;
+  text-align: right;
+}
+
+.amd-badge .label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+
+.amd-badge .hardware {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: #00aaff;
+  letter-spacing: 1px;
+}
+
+/* Scanline overlay */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  z-index: 5;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-center"></div>
+<div class="glow-blue"></div>
+<div class="scanlines"></div>
+
+<!-- Seismic rings -->
+<div class="seismic-container">
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="epicenter"></div>
+</div>
+
+<!-- Agent dots and labels -->
+<svg class="connections" viewBox="0 0 1920 1080">
+  <line x1="810" y1="194" x2="1104" y2="270" />
+  <line x1="1104" y1="270" x2="1344" y2="778" />
+  <line x1="1344" y1="778" x2="768" y2="842" />
+  <line x1="768" y1="842" x2="672" y2="324" />
+  <line x1="672" y1="324" x2="810" y2="194" />
+  <line x1="1104" y1="270" x2="768" y2="842" />
+  <line x1="810" y1="194" x2="1344" y2="778" />
+</svg>
+
+<div class="agent-dot overwatch"></div>
+<div class="agent-dot sentinel"></div>
+<div class="agent-dot atlas"></div>
+<div class="agent-dot pulse"></div>
+<div class="agent-dot aegis"></div>
+
+<div class="agent-label overwatch">Overwatch</div>
+<div class="agent-label sentinel">Sentinel</div>
+<div class="agent-label atlas">Atlas</div>
+<div class="agent-label pulse">Pulse</div>
+<div class="agent-label aegis">Aegis</div>
+
+<!-- Left content -->
+<div class="content-left">
+  <div class="badge">AMD Developer Hackathon 2026</div>
+  <div class="title">
+    Mission Control:<br>
+    <span class="highlight">Earthquake</span> Response
+  </div>
+  <div class="subtitle">
+    Five AI agents analyzing real-time seismic data,<br>
+    coordinating disaster response at machine speed.
+  </div>
+  <div class="tech-row">
+    <span class="tech-pill amd">AMD MI300X</span>
+    <span class="tech-pill amd">ROCm</span>
+    <span class="tech-pill">Gemma 4 26B</span>
+    <span class="tech-pill">FastAPI</span>
+    <span class="tech-pill">Next.js</span>
+    <span class="tech-pill">WebSocket</span>
+    <span class="tech-pill">USGS Live</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-number">5</div>
+      <div class="stat-label">AI Agents</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">25+</div>
+      <div class="stat-label">Events / Scenario</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">71%</div>
+      <div class="stat-label">Citation Score</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">3s</div>
+      <div class="stat-label">Event Interval</div>
+    </div>
+  </div>
+</div>
+
+<!-- AMD badge -->
+<div class="amd-badge">
+  <div class="label">Powered by</div>
+  <div class="hardware">AMD Instinct MI300X / ROCm</div>
+</div>
+
+<div class="bottom-bar"></div>
+
+</body>
+</html>
